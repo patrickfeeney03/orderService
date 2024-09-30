@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-    public class CardDetails {
-    private String name;
-    private String userName;
-    private Integer cardNumber;
-    private Integer securityNumber;
+public class OrderRequest {
+    private Order order;
+    private CardDetails cardDetails;
 }

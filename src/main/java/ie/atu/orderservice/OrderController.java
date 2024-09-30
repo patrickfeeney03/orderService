@@ -29,23 +29,18 @@ public class OrderController {
     public List<Order> getCompletedOrders() {
         return  orderService.getCompletedOrders();
     }
+
     @PostMapping("/order")
-    public Order makeOrder(@Valid @RequestBody Order order, @RequestBody CardDetails cardDetails) {
-        return orderService.makeOrder(order, cardDetails);
+    public Order makeOrder(@RequestBody OrderRequest orderRequest) throws JsonProcessingException {
+        return orderService.makeOrder(orderRequest);
     }
 
-    @PostMapping("/order2")
-    public Order makeOrder2(@RequestBody ObjectNode json) throws JsonProcessingException {
-//        var order = json.get();
-        return orderService.makeOrder(json);
-    }
-
-    @PostMapping("/process")
+    @GetMapping("/process")
     public Order process() {
         return orderService.completeNextOrder();
     }
 
-    @PostMapping("/skip")
+    @GetMapping("/skip")
     public Order skip() {
         return orderService.skipNextOrder();
     }

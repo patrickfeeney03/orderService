@@ -2,9 +2,8 @@ package ie.atu.orderservice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -38,26 +37,14 @@ public class OrderService {
        return ordersCompleted;
    }
 
-   public Order makeOrder(Order order, CardDetails cardDetails) {
-       pendingOrders.add(order);
-       printContents();
-
-       paymentService.processPayment(cardDetails);
-
-       return order;
-   }
-
-   public Order makeOrder(ObjectNode json) throws JsonProcessingException {
-       var orderStr = json.get("order").asText();
-       var order = objectMapper.readValue(orderStr, Order.class);
-
-       var cardDetailsStr = json.get("cardDetails").asText();
-       var cardDetails = objectMapper.readValue(cardDetailsStr, CardDetails.class);
+   public Order makeOrder(OrderRequest orderRequest) throws JsonProcessingException {
+       Order order = orderRequest.getOrder();
+       CardDetails cardDetails = orderRequest.getCardDetails();
 
        pendingOrders.add(order);
        printContents();
-
        paymentService.processPayment(cardDetails);
+
 
        return order;
    }
@@ -65,7 +52,7 @@ public class OrderService {
    public Order completeNextOrder() {
        var orderToComplete = pendingOrders.poll();
        if (orderToComplete == null) {
-           throw new ResponseStatusException(HttpStatus.CONFLICT, "There are no orders left to process");
+           throw new ResponseStatusException(HttpStatus.NO_CONTENT, "There are no orders left to process");
        }
 
        ordersCompleted.add(orderToComplete);
