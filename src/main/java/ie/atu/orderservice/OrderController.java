@@ -31,7 +31,7 @@ public class OrderController {
     }
 
     @PostMapping("/order")
-    public Order makeOrder(@RequestBody OrderRequest orderRequest) throws JsonProcessingException {
+    public Order makeOrder(@Valid @RequestBody OrderRequest orderRequest) throws JsonProcessingException {
         return orderService.makeOrder(orderRequest);
     }
 
