@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -37,14 +34,19 @@ public class OrderService {
        return ordersCompleted;
    }
 
-   public Order makeOrder(OrderRequest orderRequest) throws JsonProcessingException {
+   public Order makeOrder(OrderRequest orderRequest) {
        Order order = orderRequest.getOrder();
        CardDetails cardDetails = orderRequest.getCardDetails();
+
+       for (Order pendingOrder : pendingOrders) {
+           if (Objects.equals(pendingOrder.getId(), order.getId())) {
+               throw new ResponseStatusException(HttpStatus.CONFLICT, "An order with the same ID exists.");
+           }
+       }
 
        pendingOrders.add(order);
        printContents();
        paymentService.processPayment(cardDetails);
-
 
        return order;
    }
@@ -52,7 +54,7 @@ public class OrderService {
    public Order completeNextOrder() {
        var orderToComplete = pendingOrders.poll();
        if (orderToComplete == null) {
-           throw new ResponseStatusException(HttpStatus.NO_CONTENT, "There are no orders left to process");
+           throw new ResponseStatusException(HttpStatus.NO_CONTENT);
        }
 
        ordersCompleted.add(orderToComplete);
@@ -69,7 +71,7 @@ public class OrderService {
 
    private void printContents() {
        System.out.println(
-               "Pending orders: " + pendingOrders + "," +
+               "\n\nPending orders: " + pendingOrders + "," +
                        "\nCompleted orders: " + ordersCompleted
        );
    }

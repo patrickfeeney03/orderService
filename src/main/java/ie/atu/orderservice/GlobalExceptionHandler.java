@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class GlobalExceptionHandler {
     Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * Handler for catching Exceptions thrown by @Valid
+     * Handler for catching Valid Exceptions
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -38,11 +39,23 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Handler for catching Feign Exceptions
+     */
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<String> handleFeignExceptions(FeignException ex) {
 
         LOGGER.error("Feign exception caught: {}", ex.getMessage());
 
-        return new ResponseEntity<>("Feign exception caught: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Feign exception caught:\n" + ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handler for ResponseStatusException.class
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<String> handleResponseStatusException(ResponseStatusException ex) {
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(ex.getReason());
     }
 }
