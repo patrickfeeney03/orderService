@@ -13,7 +13,6 @@ import java.util.*;
 public class OrderService {
 
     private final PaymentService paymentService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
    private final List<Order> ordersCompleted = new ArrayList<>();
    private final Queue<Order> pendingOrders = new LinkedList<>();
@@ -44,9 +43,10 @@ public class OrderService {
            }
        }
 
+       paymentService.processPayment(cardDetails);
+
        pendingOrders.add(order);
        printContents();
-       paymentService.processPayment(cardDetails);
 
        return order;
    }
